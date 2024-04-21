@@ -10,10 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -24,6 +27,9 @@ public class BiMessageConsumer {
 
     @Resource
     private AiManager aiManager;
+
+    @Resource
+    private  RedisTemplate redisTemplate;
 
     // 指定程序监听的消息队列和确认机制
     @SneakyThrows
@@ -72,8 +78,25 @@ public class BiMessageConsumer {
             channel.basicNack(deliveryTag, false, false);
             handleChartUpdateError(chart.getId(), "更新图表成功状态失败");
         }
+
+        //删缓存
+        Chart chartdel = chartService.getById(chartId);
+        Long userId = chartdel.getUserId();
+        Set<String> keys = redisTemplate.keys(userId + "*");
+
+        // 删除匹配的键
+        while (!keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+
+
         // 消息确认
         channel.basicAck(deliveryTag, false);
+
+
+
+
+
     }
 
     /**

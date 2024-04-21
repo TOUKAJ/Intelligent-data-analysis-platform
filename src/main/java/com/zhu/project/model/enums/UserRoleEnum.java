@@ -3,15 +3,18 @@ package com.zhu.project.model.enums;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * 用户角色枚举
  */
+
 public enum UserRoleEnum {
 
     USER("用户", "user"),
-    ADMIN("管理员", "admin"),
+    ADMIN("管理员", "admin");
 
 
     private final String text;

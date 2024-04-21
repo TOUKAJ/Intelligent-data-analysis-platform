@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * @author 朱先生
@@ -50,7 +52,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "图表不存在");
         }
         //数据库查询成功就写入缓存
-        redisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(chart));
+        redisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(chart),5, TimeUnit.MINUTES);
         return chart;
     }
 
